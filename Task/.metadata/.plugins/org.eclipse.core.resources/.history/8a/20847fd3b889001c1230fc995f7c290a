@@ -1,0 +1,55 @@
+package foodQuick;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.LineNumberReader;
+import java.util.Scanner;
+
+public class Invoice {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		// Order number
+		// int orderNumber = 12133
+
+		Customer customer1 = new Customer("Jill Jack", "123 456 7890", "12 Cherry Road", "Plumstead", "Cape Town",
+				"jilljack@yahoo.com");
+		Customer customer2 = new Customer("Samie", "123 456 7890", "12 Cherry Road", "Plumstead", "Cape Town",
+				"jilljack@yahoo.com");
+
+		Customer[] customers = new Customer[2];
+
+		customers[0] = customer1;
+		customers[1] = customer2;
+
+		System.out.println(customers[0].customerName);
+		System.out.println(customers[1].customerName);
+		
+		String customerTextFile = "C:/Users/MARTIN/Dropbox/Martin Carstens-115604/2. Advanced Programming Concepts/Task 7/Task/customers.txt";
+		
+		System.out.println(NumberOfLines(customerTextFile) + "");
+
+	}
+
+	public static int NumberOfLines(String fileLocation) {
+		//Declare countLines to count the number of lines and Line to action the nexLine() function
+		int countLines = 0;
+		String line = "";
+
+		try {
+			File file = new File(fileLocation);
+			Scanner lineNumberReader = new Scanner(file);
+			while (lineNumberReader.hasNextLine()) {
+				countLines++;
+				line = lineNumberReader.nextLine();		
+			}
+			lineNumberReader.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("Error reading number of lines at location: " + fileLocation);
+		}
+		return countLines;
+	}
+
+}

@@ -1,0 +1,28 @@
+package foodQuick;
+
+
+
+public class Invoice {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		
+		//Order number
+		//int orderNumber = 12133
+		
+		Customer[] customers = new Customer[2];
+
+		
+		Customer customer1 = new Customer("Jill Jack", "123 456 7890", "12 Cherry Road", "Plumstead", "Cape Town", "jilljack@yahoo.com");
+		Customer customer2 = new Customer("Samie", "123 456 7890", "12 Cherry Road", "Plumstead", "Cape Town", "jilljack@yahoo.com");
+		
+		
+		customers[0] = customer1;
+		customers[1] = customer2; 
+		
+		System.out.println(customers[0].customerName);
+		System.out.println(customers[1].customerName);
+		
+	}
+
+}

@@ -1,0 +1,25 @@
+package foodQuick;
+
+public class Customer {
+
+	//Attributes
+	String customerName;
+	String contactNumber;
+	String streetAddressOfCustomer;
+	String suburbAddressOfCustomer;
+	String cityCustomer;
+	String emailCustomer;
+	
+	//Methods
+	public Customer(String customerName, String contactNumber, String streetAddressOfCustomer, String suburbAddressOfCustomer, String cityCustomer, String emailCustomer) {
+		
+		this.customerName = customerName;
+		this.contactNumber = contactNumber;
+		this.streetAddressOfCustomer = streetAddressOfCustomer;
+		this.suburbAddressOfCustomer = suburbAddressOfCustomer;
+		this.cityCustomer = cityCustomer;
+		this.emailCustomer = emailCustomer;
+	}
+	
+	
+}
