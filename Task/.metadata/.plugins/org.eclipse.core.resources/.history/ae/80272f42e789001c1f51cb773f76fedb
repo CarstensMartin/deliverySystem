@@ -1,0 +1,92 @@
+package foodQuick;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.Scanner;
+
+public class Invoice {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+
+		// Order number
+		// int orderNumber = 12133
+
+		String customerTextFile = "C:/Users/MARTIN/Dropbox/Martin Carstens-115604/2. Advanced Programming Concepts/Task 7/Task/customers.txt";
+		Customer[] customers = ObjectCreationCustomer(customerTextFile);
+
+		System.out.println(customers[0].customerName);
+
+
+		System.out.println(NumberOfLines(customerTextFile) + "");
+
+	}
+
+	public static int NumberOfLines(String fileLocation) {
+		// Declare countLines to count the number of lines
+		int countLines = 0;
+
+		try {
+			File file = new File(fileLocation);
+			Scanner lineNumberReader = new Scanner(file);
+			while (lineNumberReader.hasNextLine()) {
+				countLines++;
+				lineNumberReader.nextLine();
+			}
+			lineNumberReader.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("Error reading number of lines at location: " + fileLocation);
+		}
+		return countLines;
+	}
+
+	// Method to read data from text file and create array of the customer customers
+	public static Customer[] ObjectCreationCustomer(String fileLocation) {
+		// Declare countLines to count the line - each line is an object in the array
+		int countLines = 0;
+		// Declare the array - call method NumberOfLines() to know the array size
+		Customer[] customersArray = new Customer[NumberOfLines(fileLocation)];
+
+		// Use the scanner method to scan the customer text file line my line
+		try {
+			File file = new File(fileLocation);
+			Scanner lineScan = new Scanner(file);
+			while (lineScan.hasNextLine()) {
+				// Get the string value of the line
+				String textLine = lineScan.nextLine();
+
+				// Use the scanner function to scan the items in the line
+				try (Scanner itemScanner = new Scanner(textLine)) {
+					// Use the delimiter to know until where the scanner must scan
+					itemScanner.useDelimiter(",");	
+					while (itemScanner.hasNext()) {
+						//Declare the String variables to store the attributes
+						String customerName = itemScanner.next();
+						String contactNumber = itemScanner.next();
+						String streetAddressOfCustomer = itemScanner.next();
+						String suburbAddressOfCustomer = itemScanner.next();
+						String cityCustomer = itemScanner.next();
+						String emailCustomer = itemScanner.next();
+
+						//Declare a new object
+						Customer customer1 = new Customer(customerName, contactNumber, streetAddressOfCustomer,
+								suburbAddressOfCustomer, cityCustomer, emailCustomer);
+						//Add the object to the array
+						customersArray[countLines] = customer1;
+					}
+				}
+				//Add 1 for the new array object
+				countLines++;
+			}
+			//Close the scanner
+			lineScan.close();
+		} catch (FileNotFoundException e) {
+			//If problem with executing scanner, give error message
+			System.out.println("Error reading Objects at location: " + fileLocation);
+		}
+		//Return the array of objects
+		return customersArray;
+
+	}
+
+}

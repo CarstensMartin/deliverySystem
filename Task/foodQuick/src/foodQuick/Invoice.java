@@ -6,12 +6,13 @@ import java.util.Formatter;
 import java.util.Scanner;
 import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
+
 public class Invoice {
 
 	public static void main(String[] args) {
 
 		// DECLARE FILE PATHS AND INITIALIZE THE ARRAYS
-	
+
 		// File path and create an array for Customer details
 		String customerTextFile = "projectFiles/customers.txt";
 		String customerWritingFileLocation = "projectFiles/customers";
@@ -33,388 +34,365 @@ public class Invoice {
 		
 		
 		// ADD NEW ORDER:
-
-		//Ask the user if the want to add a new order - (suggest Yes - 1)
+		// Ask the user if the want to add a new order - (suggest Yes - 1)
+		// If No is selected, nothing will happen
 		String addNewOrder = wantToAddNewOrder(1);
-		
-		//Run a WHILE LOOP - to get the order information, Add more orders until user is done
-		while (addNewOrder.equals("Yes")) {		
-			//Create a new order number
+
+		// Run a WHILE LOOP - to get the order information, Add more orders until user is done
+		while (addNewOrder.equals("Yes")) {
+			// Create a new order number
 			int newOrderNumber = newOrderNumber(restaurants);
-			
-			//Ask user information about customer and update array.
+
+			// Ask user information about customer and update array.
 			customers = AddCustomer(customers, newOrderNumber);
 
-			//Ask user information about new order and update array.
+			// Ask user information about new order and update array.
 			restaurants = AddRestaurant(restaurants, newOrderNumber);
+
 			
-			//Ask the user if they want to add another order- (suggest No - 0), if Yes, continue loop
+			// *** CREATING THE INVOICES AND UPDATE THE DRIVERS ARRAY ***
+			drivers = invoiceCreator(restaurants, customers, drivers, invoiceWritingFileLocation, newOrderNumber);
+
+			
+			// *** WRITE THE TEXT FILES WITH THE NEW RESTAURANT ORDER AND CUSTOMER UPDATES ***
+			
+			// Create the text as output message for the Restaurant orders
+			String outputMessageRestaurant = outputMessageRestaurant(restaurants);
+			// Over write the restaurantOrders text file using the FileCreatorMethod method
+			FileCreatorMethod(restaurantWritingFileLocation, "", outputMessageRestaurant, "");
+
+			// Create the text as output message for the Customers
+			String outputMessageCustomer = outputMessageCustomer(customers);
+			// Overwrite the customers text file using the FileCreatorMethod method
+			FileCreatorMethod(customerWritingFileLocation, "", outputMessageCustomer, "");
+
+			// Create the text as output message for the Drivers
+			String outputMessageDrivers = outputMessageDrivers(drivers);
+			// File name of text file amendment
+			String newFileOutput = "NewAfterAllocation";
+			// Run the method to create a NEW file for Drivers
+			FileCreatorMethod(driverWritingFileLocation, "", outputMessageDrivers, newFileOutput);
+
+			// Ask the user if they want to add another order- (suggest No - 0), if Yes, continue loop
 			addNewOrder = wantToAddNewOrder(0);
 		}
-
-		
-		
-		// *** CREATING THE INVOICES AND UPDATE THE DRIVERS ARRAY *** 		
-		 drivers = invoiceCreator(restaurants, customers, drivers, invoiceWritingFileLocation);
-	
-		 
-		 
-		// *** WRITE THE TEXT FILES WITH THE NEW RESTAURANT ORDER AND CUSTOMER UPDATES ***
-			
-		//Create the text as output message for the Restaurant orders 
-		String outputMessageRestaurant = outputMessageRestaurant(restaurants);
-			
-		//Over write the restaurantOrders text file using the FileCreatorMethod method
-		FileCreatorMethod(restaurantWritingFileLocation, "", outputMessageRestaurant, "");
-			
-		
-		
-		//Create the text as output message for the Customers 
-		String outputMessageCustomer = outputMessageCustomer(customers);
-
-		//Overwrite the customers text file using the FileCreatorMethod method
-		FileCreatorMethod(customerWritingFileLocation, "" , outputMessageCustomer, ""); 
-		 	
-		
-		//Create the text as output message for the Drivers
-		String outputMessageDrivers = outputMessageDrivers(drivers);
-		
-		//File name of text file amendment
-		String newFileOutput = "NewAfterAllocation";
-		
-		// Run the method to create a NEW file for Drivers
-		FileCreatorMethod(driverWritingFileLocation, "", outputMessageDrivers,  newFileOutput);
 
 	}
 
 	// *** END OF MAIN ***
+
 	
 	
-	
-	
-	
-	
-	
-	//__________METHODS THAT ARE USED:__________
-	
+	// __________METHODS THAT ARE USED:__________
+
 	// *** ASK USER IF THEY WANT TO ADD ANOTHER ORDER ***
-	public static String wantToAddNewOrder(int sugestYesorNo){
-	
-	//Give user an option of "Yes" or "No"
-	String[] optionsToCreateNewOrder = { "No", "Yes" };
-	//Declare the quick food icon - (icon was down loaded from google)
-	ImageIcon icon = new ImageIcon("src/images/imageQuickFood.png");
-	//Prompt box and "Yes" - 0 is pre-selected
-	String addNewOrder = (String) JOptionPane.showInputDialog(null, "Would you like to add a new Order?",
-			"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, optionsToCreateNewOrder,
-			optionsToCreateNewOrder[sugestYesorNo]);
-	//Return if the user wants add a new order
-	return addNewOrder;
-	}
-	
-	
-	
-	// ** GENERATE A NEW INVOICE NUMBER ***
-	public static int newOrderNumber(Restaurant[] restaurants) {
+	public static String wantToAddNewOrder(int sugestYesorNo) {
+		// Give user an option of "Yes" or "No"
+		String[] optionsToCreateNewOrder = { "No", "Yes" };
 		
-	// Generate a new order number that is 1 higher than the previous highest order number
-	int newOrderNumber = 0;
-	for (int i = 0; i < restaurants.length; i++) {
-		if (restaurants[i].orderNumber > newOrderNumber) {
-			newOrderNumber = restaurants[i].orderNumber;
+		// Declare the quick food icon - (icon was down loaded from google)
+		ImageIcon icon = new ImageIcon("src/images/imageQuickFood.png");
+		
+		// Prompt box and "Yes" - 0 is pre-selected
+		String addNewOrder = (String) JOptionPane.showInputDialog(null, "Would you like to add a new Order?",
+				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, optionsToCreateNewOrder,
+				optionsToCreateNewOrder[sugestYesorNo]);
+		
+		// Return if the user wants add a new order
+		return addNewOrder;
+	}
+
+	
+	
+	// ** GENERATE A NEW INVOICE ORDER NUMBER ***
+	public static int newOrderNumber(Restaurant[] restaurants) {
+		// Generate a new order number that is 1 higher than the previous highest order number
+		int newOrderNumber = 0;
+		
+		//For loop to get the highest invoice number
+		for (int i = 0; i < restaurants.length; i++) {
+			if (restaurants[i].orderNumber > newOrderNumber) {
+				newOrderNumber = restaurants[i].orderNumber;
+			}
 		}
-	}
-	//One higher than highest invoice number
-	newOrderNumber++;
-	
-	return newOrderNumber;
-	}
-	
-	
+		// One higher than highest invoice number
+		newOrderNumber++;
 
+		return newOrderNumber;
+	}
+
+	
+	
 	// *** ADD NEW ORDER: ***
-	//Method with questions if a new order is placed which updates the restaurant orders array
+	// Method with questions if a new order is placed which updates the restaurant orders array
 	public static Restaurant[] AddRestaurant(Restaurant[] restaurants, int newOrderNumber) {
-	
-	//Declare the quick food icon - (icon was down loaded from google)
-	ImageIcon icon = new ImageIcon("src/images/imageQuickFood.png");
-	
-	// Prompt - Order City add - 
-	// Give a Drop-down option to eliminate miss spelling. Give option "Other" if option not found
-	//Also use this city option for food order option
-	String[] createNewOrderCityOptios = { "Bloemfontein", "Cape Town", "Durban", "Johannesburg",
-			"Port Elizabeth", "Potchefstroom", "Springbok", "Witbank", "Other" };
-	String addCityCustomer = (String) JOptionPane.showInputDialog(null, "Which City do you want to order from?",
-			"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, createNewOrderCityOptios,
-			createNewOrderCityOptios[0]);
 
-	// If city is Other, Ask which other city and update addCityCustomer with city name
-	if (addCityCustomer.equals("Other")) {
-		// Customer City add
-		addCityCustomer = (String) JOptionPane.showInputDialog(null, "Which Other city do you stay in?",
-				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, null);
-	}
+		// Declare the quick food icon - (icon was down loaded from google)
+		ImageIcon icon = new ImageIcon("src/images/imageQuickFood.png");
 
-	// Prompt - Restaurant addRestaurantName
-	// Give a Drop-down option to eliminate miss spelling. Give option "Other" if option not found
-	String[] createNewOrderRestaurantNames = { "KFC", "MC Donalds", "Nandos", "Other" };
-	String addRestaurantName = (String) JOptionPane.showInputDialog(null,
-			"Which Restaurant do you want to order from?", "QUICK FOOD DELIVERIES",
-			JOptionPane.QUESTION_MESSAGE, icon, createNewOrderRestaurantNames,
-			createNewOrderRestaurantNames[0]);
-	// If restaurant is Other, Ask which other restaurant and update
-	if (addRestaurantName.equals("Other")) {
-		// Prompt - Restaurant name added
-		addRestaurantName = (String) JOptionPane.showInputDialog(null,
-				"Type in a Restaurant name that you want to order from?", "QUICK FOOD DELIVERIES",
-				JOptionPane.QUESTION_MESSAGE, icon, null, null);
-	}
+		// Prompt - Order City add -
+		// Give a Drop-down option to eliminate miss spelling. Give option "Other" if option not found
+		String[] createNewOrderCityOptios = { "Bloemfontein", "Cape Town", "Durban", "Johannesburg", "Port Elizabeth", "Potchefstroom", "Springbok", "Witbank", "Other" };
+		String addCityCustomer = (String) JOptionPane.showInputDialog(null, "Which City do you want to order from?",
+				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, createNewOrderCityOptios, createNewOrderCityOptios[0]);
 
-	// Prompt - Restaurant Special instruction add 
-	// Give a Drop-down options for ease of use. Give option "Other" if option not found
-	String[] createNewOrderSpecialInstruction = { "No Special Instructions", "No Tomato", "No Lettuce",
-			"No Onions", "No Pickles", "No Mayo", "No Ketchup", "Other" };
-	String addSpecialInstruction = (String) JOptionPane.showInputDialog(null,
-			"Special instructions with this order?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE,
-			icon, createNewOrderSpecialInstruction, createNewOrderSpecialInstruction[0]);
+		// If city is Other, Ask which other city and update addCityCustomer with city name
+		if (addCityCustomer.equals("Other")) {
+			// Customer City add
+			addCityCustomer = (String) JOptionPane.showInputDialog(null, "Which Other city do you stay in?",
+					"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, null);
+		}
 
-	// If Special instruction is Other, Ask to describe
-	if (addSpecialInstruction.equals("Other")) {
-		// Customer City add
-		addSpecialInstruction = (String) JOptionPane.showInputDialog(null,
-				"Type in an Other Special Instruction?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE,
-				icon, null, null);
-	}
+		// Prompt - Restaurant addRestaurantName
+		// Give a Drop-down option to eliminate miss spelling. Give option "Other" if option not found
+		String[] createNewOrderRestaurantNames = { "KFC", "MC Donalds", "Nandos", "Other" };
+		String addRestaurantName = (String) JOptionPane.showInputDialog(null,
+				"Which Restaurant do you want to order from?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE,
+				icon, createNewOrderRestaurantNames, createNewOrderRestaurantNames[0]);
+		// If restaurant is Other, Ask which other restaurant and update
+		if (addRestaurantName.equals("Other")) {
+			// Prompt - Restaurant name added
+			addRestaurantName = (String) JOptionPane.showInputDialog(null,
+					"Type in a Restaurant name that you want to order from?", "QUICK FOOD DELIVERIES",
+					JOptionPane.QUESTION_MESSAGE, icon, null, null);
+		}
 
-	// Prompt - Restaurant Order item add 
-	// Give a Drop-down options for ease of use.
-	String[] createNewOrderItemsOnMenue = { "1 x Beef Burger Meal (R80.00)", "1 x Beef Burger Only (R60.00)",
-			"1 x Chicken Burger Meal (R70.00)", "1 x Chicken Burger Only (R50.00)",
-			"1 x Chicken Wrap (R80.00)" };
-	String addOrderItem1 = (String) JOptionPane.showInputDialog(null, "Which Item would you like to order?",
-			"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, createNewOrderItemsOnMenue,
-			createNewOrderItemsOnMenue[0]);
+		// Prompt - Restaurant Special instruction add
+		// Give a Drop-down options for ease of use. Give option "Other" if option not found
+		String[] createNewOrderSpecialInstruction = { "No Special Instructions", "No Tomato", "No Lettuce", "No Onions",
+				"No Pickles", "No Mayo", "No Ketchup", "Other" };
+		String addSpecialInstruction = (String) JOptionPane.showInputDialog(null,
+				"Special instructions with this order?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon,
+				createNewOrderSpecialInstruction, createNewOrderSpecialInstruction[0]);
 
-	// Prompt - Restaurant Order item add
-	// Give a Drop-down options for ease of use.
-	String[] createNewOrderItemsOnMenue2 = { "1 x Beef Burger Meal (R80.00)", "1 x Beef Burger Only (R60.00)",
-			"1 x Chicken Burger Meal (R70.00)", "1 x Chicken Burger Only (R50.00)", "1 x Chicken Wrap (R80.00)",
-			"No Thank you - only 1 item" };
-	String addOrderItem2 = (String) JOptionPane.showInputDialog(null,
-			"Second item that you would you like to order?", "QUICK FOOD DELIVERIES",
-			JOptionPane.QUESTION_MESSAGE, icon, createNewOrderItemsOnMenue2, createNewOrderItemsOnMenue2[2]);
-	// If client only want 1 item, 2nd item should be blank on invoice
-	if (addOrderItem2.equals("No Thank you - only 1 item")) {
-		addOrderItem2 = "";
-	}
+		// If Special instruction is Other, Ask to describe
+		if (addSpecialInstruction.equals("Other")) {
+			// Customer City add
+			addSpecialInstruction = (String) JOptionPane.showInputDialog(null, "Type in an Other Special Instruction?",
+					"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, null);
+		}
 
-	//Based on the restaurant selected, give centralized contact number for Restaurant
-	String addcontactNumberRestaurant;
+		// Prompt - Restaurant Order item add
+		// Give a Drop-down options for ease of use.
+		String[] createNewOrderItemsOnMenue = { "1 x Beef Burger Meal (R80.00)", "1 x Beef Burger Only (R60.00)",
+				"1 x Chicken Burger Meal (R70.00)", "1 x Chicken Burger Only (R50.00)", "1 x Chicken Wrap (R80.00)" };
+		String addOrderItem1 = (String) JOptionPane.showInputDialog(null, "Which Item would you like to order?",
+				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, createNewOrderItemsOnMenue,
+				createNewOrderItemsOnMenue[0]);
 
-	if (addRestaurantName.equals("KFC")) {
-		addcontactNumberRestaurant = "+2786 0100 222";
-	} else if (addRestaurantName.equals("MC Donalds")) {
-		addcontactNumberRestaurant = "+2721 982 3391";
-	} else if (addRestaurantName.equals("Nandos")) {
-		addcontactNumberRestaurant = "+2786 011 3332";
-	} 
-	//If the user added a different restaurant - they must also add the contact number
-	else {
-		addcontactNumberRestaurant = (String) JOptionPane.showInputDialog(null,
-				"Enter contact number of Restaurant?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE,
-				icon, null, "+27 ");
-	}
+		// Prompt - Restaurant Order item add
+		// Give a Drop-down options for ease of use.
+		String[] createNewOrderItemsOnMenue2 = { "1 x Beef Burger Meal (R80.00)", "1 x Beef Burger Only (R60.00)",
+				"1 x Chicken Burger Meal (R70.00)", "1 x Chicken Burger Only (R50.00)", "1 x Chicken Wrap (R80.00)",
+				"No Thank you - only 1 item" };
+		String addOrderItem2 = (String) JOptionPane.showInputDialog(null,
+				"Second item that you would you like to order?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE,
+				icon, createNewOrderItemsOnMenue2, createNewOrderItemsOnMenue2[2]);
+		// If client only want 1 item, 2nd item should be blank on invoice
+		if (addOrderItem2.equals("No Thank you - only 1 item")) {
+			addOrderItem2 = "";
+		}
 
-	//Get the price of item 1 based on item selected
-	double addItem1Price = 0;
-	
-	if (addOrderItem1.equals("1 x Beef Burger Meal (R80.00)")) {
-		addItem1Price = 80.00;
-	} else if (addOrderItem1.equals("1 x Beef Burger Only (R60.00)")) {
-		addItem1Price = 60.00;
-	} else if (addOrderItem1.equals("1 x Chicken Burger Meal (R70.00)")) {
-		addItem1Price = 70.00;
-	} else if (addOrderItem1.equals("1 x Chicken Burger Only (R50.00)")) {
-		addItem1Price = 70.00;
-	} else if (addOrderItem1.equals("1 x Chicken Wrap (R80.00)")) {
-		addItem1Price = 80.00;
-	}
+		// Based on the restaurant selected, give centralized contact number for Restaurant
+		String addcontactNumberRestaurant;
 
-	//Get the price of item 2 based on item selected
-	double addItem2Price = 0;
+		if (addRestaurantName.equals("KFC")) {
+			addcontactNumberRestaurant = "+2786 0100 222";
+		} else if (addRestaurantName.equals("MC Donalds")) {
+			addcontactNumberRestaurant = "+2721 982 3391";
+		} else if (addRestaurantName.equals("Nandos")) {
+			addcontactNumberRestaurant = "+2786 011 3332";
+		}
+		// If the user added a different restaurant - they must also add the contact number
+		else {
+			addcontactNumberRestaurant = (String) JOptionPane.showInputDialog(null,
+					"Enter contact number of Restaurant?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon,
+					null, "+27 ");
+		}
 
-	if (addOrderItem2.equals("1 x Beef Burger Meal (R80.00)")) {
-		addItem2Price = 80.00;
-	} else if (addOrderItem2.equals("1 x Beef Burger Only (R60.00)")) {
-		addItem2Price = 60.00;
-	} else if (addOrderItem2.equals("1 x Chicken Burger Meal (R70.00)")) {
-		addItem2Price = 70.00;
-	} else if (addOrderItem2.equals("1 x Chicken Burger Only (R50.00)")) {
-		addItem2Price = 70.00;
-	} else if (addOrderItem2.equals("1 x Chicken Wrap (R80.00)")) {
-		addItem2Price = 80.00;
-	} else if (addOrderItem2.equals("No Thank you - only 1 item")) {
-		addItem2Price = 0.00;
-	}
-	
-	//Total price of item 1 and 2 together
-	double addtotalPriceOrderDouble = (addItem1Price + addItem2Price);
-	//Convert total price to a string
-	String addtotalPriceOrder = (addtotalPriceOrderDouble + "");
+		// Get the price of item 1 based on item selected
+		double addItem1Price = 0;
 
-	// Declare a new Array with a size 1 bigger than the current restaurants array
-	Restaurant[] restaurantsArrayNew = new Restaurant[(restaurants.length + 1)];
-	// Declare a new object with the information gathered from the prompts
-	Restaurant restaurantAddNew = new Restaurant(newOrderNumber, addRestaurantName, addCityCustomer,
-			addcontactNumberRestaurant, addtotalPriceOrder, addSpecialInstruction, addOrderItem1,
-			addOrderItem2);
+		if (addOrderItem1.equals("1 x Beef Burger Meal (R80.00)")) {
+			addItem1Price = 80.00;
+		} else if (addOrderItem1.equals("1 x Beef Burger Only (R60.00)")) {
+			addItem1Price = 60.00;
+		} else if (addOrderItem1.equals("1 x Chicken Burger Meal (R70.00)")) {
+			addItem1Price = 70.00;
+		} else if (addOrderItem1.equals("1 x Chicken Burger Only (R50.00)")) {
+			addItem1Price = 70.00;
+		} else if (addOrderItem1.equals("1 x Chicken Wrap (R80.00)")) {
+			addItem1Price = 80.00;
+		}
 
-	// Add the existing array data to the new array
-	for (int x = 0; x < restaurants.length; x++) {
-		restaurantsArrayNew[x] = restaurants[x];
-	}
+		// Get the price of item 2 based on item selected
+		double addItem2Price = 0;
 
-	// Add the new object to the array 
-	// restaurants.length because index starts at 0 not 1
-	restaurantsArrayNew[restaurants.length] = restaurantAddNew;
+		if (addOrderItem2.equals("1 x Beef Burger Meal (R80.00)")) {
+			addItem2Price = 80.00;
+		} else if (addOrderItem2.equals("1 x Beef Burger Only (R60.00)")) {
+			addItem2Price = 60.00;
+		} else if (addOrderItem2.equals("1 x Chicken Burger Meal (R70.00)")) {
+			addItem2Price = 70.00;
+		} else if (addOrderItem2.equals("1 x Chicken Burger Only (R50.00)")) {
+			addItem2Price = 70.00;
+		} else if (addOrderItem2.equals("1 x Chicken Wrap (R80.00)")) {
+			addItem2Price = 80.00;
+		} else if (addOrderItem2.equals("No Thank you - only 1 item")) {
+			addItem2Price = 0.00;
+		}
 
-	//Replace the restaurants array with the new array
-	restaurants = restaurantsArrayNew;
+		// Total price of item 1 and 2 together
+		double addtotalPriceOrderDouble = (addItem1Price + addItem2Price);
+		// Convert total price to a string
+		String addtotalPriceOrder = (addtotalPriceOrderDouble + "");
 
-	//Return the updated restaurant array
-	return restaurants;
+		// Declare a new Array with a size 1 bigger than the current restaurants array
+		Restaurant[] restaurantsArrayNew = new Restaurant[(restaurants.length + 1)];
+		// Declare a new object with the information gathered from the prompts
+		Restaurant restaurantAddNew = new Restaurant(newOrderNumber, addRestaurantName, addCityCustomer,
+				addcontactNumberRestaurant, addtotalPriceOrder, addSpecialInstruction, addOrderItem1, addOrderItem2);
+
+		// Add the existing array data to the new array
+		for (int x = 0; x < restaurants.length; x++) {
+			restaurantsArrayNew[x] = restaurants[x];
+		}
+
+		// Add the new object to the array restaurants.length because index starts at 0 not 1
+		restaurantsArrayNew[restaurants.length] = restaurantAddNew;
+
+		// Replace the restaurants array with the new array
+		restaurants = restaurantsArrayNew;
+
+		// Return the updated restaurant array
+		return restaurants;
 
 	}
+
 	
 	
-
 	// *** ADD NEW CUSTOMER DETAIL ***
 	// Prompt user for information of customer
 	public static Customer[] AddCustomer(Customer[] customers, int newOrderNumber) {
 
-	// Prompt - Customer Name to add
-	//Declare the quick food icon - (icon was down loaded from google)
-	ImageIcon icon = new ImageIcon("src/images/imageQuickFood.png");
-	String addCustomerName = (String) JOptionPane.showInputDialog(null, "Name and Surname?",
-			"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, "Name Surname");
+		// Prompt - Customer Name to add
+		// Declare the quick food icon - (icon was down loaded from google)
+		ImageIcon icon = new ImageIcon("src/images/imageQuickFood.png");
+		String addCustomerName = (String) JOptionPane.showInputDialog(null, "Name and Surname?",
+				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, "Name Surname");
 
-	// Prompt - Customer Contact Number add
-	String addCustomerContactNumber = (String) JOptionPane.showInputDialog(null,
-			"Please supply a contact number?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon,
-			null, "+27 ");
+		// Prompt - Customer Contact Number add
+		String addCustomerContactNumber = (String) JOptionPane.showInputDialog(null, "Please supply a contact number?",
+				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, "+27 ");
 
-	// Prompt - Customer Street address add
-	String addStreetAddressOfCustomer = (String) JOptionPane.showInputDialog(null,
-			"Address: \nDelivery house number and Street name?", "QUICK FOOD DELIVERIES",
-			JOptionPane.QUESTION_MESSAGE, icon, null, "House number - Street name");
+		// Prompt - Customer Street address add
+		String addStreetAddressOfCustomer = (String) JOptionPane.showInputDialog(null,
+				"Address: \nDelivery house number and Street name?", "QUICK FOOD DELIVERIES",
+				JOptionPane.QUESTION_MESSAGE, icon, null, "House number - Street name");
 
-	// Prompt - Customer Suburb address add
-	String addSuburbAddressOfCustomer = (String) JOptionPane.showInputDialog(null,
-			"Address: \nDelivery suburb?", "QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null,
-			null);
-
-	// Customer City add - 
-	// Give a Drop-down option to eliminate miss spelling. Give option "Other" if option not found
-	//Also use this city option for food order option
-	String[] createNewOrderCityOptios = { "Bloemfontein", "Cape Town", "Durban", "Johannesburg",
-			"Port Elizabeth", "Potchefstroom", "Springbok", "Witbank", "Other" };
-	String addCityCustomer = (String) JOptionPane.showInputDialog(null, "Which City do you stay?",
-			"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, createNewOrderCityOptios,
-			createNewOrderCityOptios[0]);
-
-	// If city is Other, Ask which other city and update addCityCustomer with city name
-	if (addCityCustomer.equals("Other")) {
-		// Customer City add
-		addCityCustomer = (String) JOptionPane.showInputDialog(null, "Which Other city do you stay in?",
+		// Prompt - Customer Suburb address add
+		String addSuburbAddressOfCustomer = (String) JOptionPane.showInputDialog(null, "Address: \nDelivery suburb?",
 				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, null);
+
+		// Customer City add -
+		// Give a Drop-down option to eliminate miss spelling. Give option "Other" if option not found
+		// Also use this city option for food order option
+		String[] createNewOrderCityOptios = { "Bloemfontein", "Cape Town", "Durban", "Johannesburg", "Port Elizabeth",
+				"Potchefstroom", "Springbok", "Witbank", "Other" };
+		String addCityCustomer = (String) JOptionPane.showInputDialog(null, "Which City do you stay?",
+				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, createNewOrderCityOptios,
+				createNewOrderCityOptios[0]);
+
+		// If city is Other, Ask which other city and update addCityCustomer with city name
+		if (addCityCustomer.equals("Other")) {
+			// Customer City add
+			addCityCustomer = (String) JOptionPane.showInputDialog(null, "Which Other city do you stay in?",
+					"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, null);
+		}
+
+		// Prompt - Customer email add
+		String addEmailCustomer = (String) JOptionPane.showInputDialog(null, "What it your email address?",
+				"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, "example@gmail.com");
+
+		// Declare a new Array with a size 1 bigger than the current customers array
+		Customer[] customerArrayNew = new Customer[(customers.length + 1)];
+		// Declare a new object with the information gathered from the prompts
+		Customer customerAddNew = new Customer(newOrderNumber, addCustomerName, addCustomerContactNumber,
+				addStreetAddressOfCustomer, addSuburbAddressOfCustomer, addCityCustomer, addEmailCustomer);
+
+		// Add the existing array data to the new array
+		for (int x = 0; x < customers.length; x++) {
+			customerArrayNew[x] = customers[x];
+		}
+
+		// Add the new object to the array customers.length 1 less because index starts at 0 not 1
+		customerArrayNew[customers.length] = customerAddNew;
+
+		// Replace the customers array with the new array
+		customers = customerArrayNew;
+
+		return customers;
 	}
 
-	// Prompt - Customer email add
-	String addEmailCustomer = (String) JOptionPane.showInputDialog(null, "What it your email address?",
-			"QUICK FOOD DELIVERIES", JOptionPane.QUESTION_MESSAGE, icon, null, "example@gmail.com");
-
-	// Declare a new Array with a size 1 bigger than the current customers array
-	Customer[] customerArrayNew = new Customer[(customers.length + 1)];
-	// Declare a new object with the information gathered from the prompts
-	Customer customerAddNew = new Customer(newOrderNumber, addCustomerName, addCustomerContactNumber,
-			addStreetAddressOfCustomer, addSuburbAddressOfCustomer, addCityCustomer, addEmailCustomer);
-
-	// Add the existing array data to the new array
-	for (int x = 0; x < customers.length; x++) {
-		customerArrayNew[x] = customers[x];
-	}
-
-	// Add the new object to the array 
-	// customers.length 1 less because index starts at 0 not 1
-	customerArrayNew[customers.length] = customerAddNew;
-
-	//Replace the customers array with the new array
-	customers = customerArrayNew;
-	
-	return customers;
-	}
-	
 	
 	
 	// __________ METHODS TO CREATE OUTPUT TEXT __________
-	
-	
+
 	// *** OUTPUT TEXT FOR RESTAURANT ORDERS FILE ***
 	public static String outputMessageRestaurant(Restaurant[] restaurants) {
-		//Declare String
+		// Declare String
 		String outputMessageRestaurant = "";
-		
-		//Create the text for the restaurantOrders file
-	
+
+		// Create the text for the restaurantOrders file
+
 		for (int x = 0; x < restaurants.length; x++) {
 			outputMessageRestaurant += restaurants[x].orderNumber + ", " + restaurants[x].restaurantName + ", "
 					+ restaurants[x].cityRestaurant + ", " + restaurants[x].contactNumber + ", "
 					+ restaurants[x].totalPrice + ", " + restaurants[x].specialInstruction + ", " + restaurants[x].item1
 					+ ", " + restaurants[x].item2 + "\r\n";
 		}
-		//Return Text to be written in file
+		// Return Text to be written in file
 		return outputMessageRestaurant;
 	}
-	
+
 	
 	
 	// *** OUTPUT TEXT FOR CUSTOMERS FILE ***
-	public static String outputMessageCustomer( Customer[] customers) {
-		//Declare String
+	public static String outputMessageCustomer(Customer[] customers) {
+		// Declare String
 		String outputMessageCustomer = "";
-		
-		//Create the text for the customers file
+
+		// Create the text for the customers file
 		for (int x = 0; x < customers.length; x++) {
 			outputMessageCustomer += customers[x].orderNumber + ", " + customers[x].customerName + ", "
 					+ customers[x].contactNumber + ", " + customers[x].streetAddressOfCustomer + ", "
 					+ customers[x].suburbAddressOfCustomer + ", " + customers[x].cityCustomer + ", "
 					+ customers[x].emailCustomer + "\r\n";
 		}
-		//Return Text to be written in file
+		// Return Text to be written in file
 		return outputMessageCustomer;
 	}
-	
+
 	
 	
 	// *** OUTPUT TEXT FOR DRIVERS FILE
-	public static String outputMessageDrivers( Driver[] drivers) {
-		//Declare String
+	public static String outputMessageDrivers(Driver[] drivers) {
+		// Declare String
 		String outputMessageDrivers = "";
-		
-		// Run a for loop to create the text of the text file 
+
+		// Run a for loop to create the text of the text file
 		for (int x = 0; x < drivers.length; x++) {
 			outputMessageDrivers += drivers[x].driverName + ", " + drivers[x].cityDriver + ", " + drivers[x].deliveries
 					+ "\r\n";
 		}
-		//Return Text to be written in file
+		// Return Text to be written in file
 		return outputMessageDrivers;
 	}
-	
+
 	
 	
 	// __________ METHODS TO CREATE FILES __________
-	
-	
+
 	// *** METHOD TO CREATE NEW FILE ***
 	public static String FileCreatorMethod(String writingFileLocation, String orderNumber, String outputMessage,
 			String error) {
@@ -445,26 +423,14 @@ public class Invoice {
 			String contactNumberRestaurant, String totalPrice, String specialInstruction, String item1, String item2) {
 
 		// Compiling the output message with the invoice detail
-		String outputMessage = ("Order number " + orderNumber + 
-				"\r\nCustomer: " + customerName + 
-				"\r\nEmail: " + emailCustomer + 
-				"\r\nPhone number: " + contactNumberCustomer + 
-				"\r\nLocation: " + cityCustomer + 
-				"\r\n" + "\r\nYou have ordered the following from  " + restaurantName + " in " + cityRestaurant + 
-				"\r\n" + 
-				"\r\n" + item1 + 
-				"\r\n" + item2 + 
-				"\r\n" + 
-				"\r\nSpecial instructions: " + specialInstruction + 
-				"\r\n" + "\r\nTotal: R" + totalPrice + 
-				"\r\n" + 
-				"\r\n" + driverName + " is nearest to the restaurant and so he will be delivering your" + 
-				"\r\norder to you at:" + 
-				"\r\n " + 
-				"\r\n" + streetAddressOfCustomer + 
-				"\r\n" + suburbAddressOfCustomer + 
-				"\r\n " + 
-				"\r\nIf you need to contact the restaurant, their number is " + contactNumberRestaurant);
+		String outputMessage = ("Order number " + orderNumber + "\r\nCustomer: " + customerName + "\r\nEmail: "
+				+ emailCustomer + "\r\nPhone number: " + contactNumberCustomer + "\r\nLocation: " + cityCustomer
+				+ "\r\n" + "\r\nYou have ordered the following from  " + restaurantName + " in " + cityRestaurant
+				+ "\r\n" + "\r\n" + item1 + "\r\n" + item2 + "\r\n" + "\r\nSpecial instructions: " + specialInstruction
+				+ "\r\n" + "\r\nTotal: R" + totalPrice + "\r\n" + "\r\n" + driverName
+				+ " is nearest to the restaurant and so he will be delivering your" + "\r\norder to you at:" + "\r\n "
+				+ "\r\n" + streetAddressOfCustomer + "\r\n" + suburbAddressOfCustomer + "\r\n "
+				+ "\r\nIf you need to contact the restaurant, their number is " + contactNumberRestaurant);
 		// Return the invoice text
 		return outputMessage;
 	}
@@ -472,8 +438,7 @@ public class Invoice {
 	
 	
 	// __________ READING OF FILES __________
-	
-	
+
 	// *** DETERMINE NUMBER OF LINES ***
 	// Method to determine the number of lines - to know how many object to create in the array
 	public static int NumberOfLines(String fileLocation) {
@@ -602,9 +567,9 @@ public class Invoice {
 		// Return the array of objects
 		return driverArray;
 	}
+	
+	
 
-	
-	
 	// *** READ RESTAURANT ORDERS FILE ***
 	// Method to read data from text file and create array of Restaurants
 	public static Restaurant[] ObjectCreationRestaurant(String fileLocation) {
@@ -660,133 +625,130 @@ public class Invoice {
 		return restaurantsArray;
 	}
 
-
-
-
+	
+	
 // __________ CREATE INVOICES _________
 
 	// *** CREATE INVOICES AND UPDATE DRIVER ARRAY ***
 	public static Driver[] invoiceCreator(Restaurant[] restaurants, Customer[] customers, Driver[] drivers,
-			String invoiceWritingFileLocation) {
+			String invoiceWritingFileLocation, int orderNumber) {
 
-// Create a for loop to run through every order in restaurantOrders
-		for (int numberOfOrder = 0; numberOfOrder < restaurants.length; numberOfOrder++) {
+		// Index position of the order in restaurant array
+		int restaurantObjectPosition = 0;
 
-			// Get the order number that is applicable to this order
-			int orderNumber = restaurants[numberOfOrder].orderNumber;
-
-			// Find the customer whose order it is by order number
-			int customerObjectPosition = 0;
-			// If customer is found - proceed with invoice, if customer is not found, give
-			// error invoice
-			boolean availableCustomer = false;
-			for (int i = 0; i < customers.length; i++) {
-				if (customers[i].orderNumber == orderNumber) {
-					customerObjectPosition = i;
-					availableCustomer = true;
-				}
+		// Find the order number in the restaurant array
+		for (int i = 0; i < restaurants.length; i++) {
+			if (restaurants[i].orderNumber == orderNumber) {
+				restaurantObjectPosition = i;
 			}
-
-			// Allocate a Driver for the Order
-			// Start with Object position 0
-			int driverObjectPosition = 0;
-			// Find the driver with the least amount of deliveries in the city
-			// Start with a high unreachable number and work down
-			int lowestDeliveries = 100000;
-			// Change to True if a driver is available
-			boolean availableDriver = false;
-
-			// For loop to find out if driver is in the region and which has the lowest amount of loads
-			for (int i = 0; i < drivers.length; i++) {
-				if ((drivers[i].cityDriver.equals(restaurants[numberOfOrder].cityRestaurant))
-						&& (drivers[i].deliveries < lowestDeliveries)) {
-					// Update driver with least loads if another driver has less loads in the array
-					// at the position
-					driverObjectPosition = i;
-					// Update the driver if the delivery amount is lower than previous
-					lowestDeliveries = drivers[i].deliveries;
-					// If a driver for the region is found,change to 1 for yes driver is available
-					availableDriver = true;
-				}
-			}
-
-			// Declare all the input variables to form the output invoice message
-			// Driver attributes
-			String driverName = drivers[driverObjectPosition].driverName;
-			// Customer attributes
-			String customerName = customers[customerObjectPosition].customerName;
-			String contactNumberCustomer = customers[customerObjectPosition].contactNumber;
-			String streetAddressOfCustomer = customers[customerObjectPosition].streetAddressOfCustomer;
-			String suburbAddressOfCustomer = customers[customerObjectPosition].suburbAddressOfCustomer;
-			String cityCustomer = customers[customerObjectPosition].cityCustomer;
-			String emailCustomer = customers[customerObjectPosition].emailCustomer;
-			// Restaurant attributes
-			String restaurantName = restaurants[numberOfOrder].restaurantName;
-			String cityRestaurant = restaurants[numberOfOrder].cityRestaurant;
-			String contactNumberRestaurant = restaurants[numberOfOrder].contactNumber;
-			String totalPrice = restaurants[numberOfOrder].totalPrice;
-			String specialInstruction = restaurants[numberOfOrder].specialInstruction;
-			String item1 = restaurants[numberOfOrder].item1;
-			String item2 = restaurants[numberOfOrder].item2;
-
-			// Output text for successful invoice - Use method to compile message
-			String outputMessage = InvoiceDetail(orderNumber, driverName, customerName, contactNumberCustomer,
-					streetAddressOfCustomer, suburbAddressOfCustomer, cityCustomer, emailCustomer, restaurantName,
-					cityRestaurant, contactNumberRestaurant, totalPrice, specialInstruction, item1, item2);
-
-			// Output text for invoice if there is no driver available
-			String driverErrorOutputMessage = "Sorry! \r\nOur drivers are too far away from you to be able to deliver to your location.";
-
-			// Convert order number to String for in order to use the Method.
-			String stringOrderNumber = orderNumber + "";
-			// Give Message result:
-			// If there is an error finding the order number in the client array - give
-			// error message in console and invoice text
-			if (availableCustomer == false) {
-				String customerNotFoundMessage = "Customer matching order number " + orderNumber
-						+ " could not be found + Error file created.";
-				// Add to the file name that there was a driver error to improve visibility
-				String error = "-customer-loading-error";
-				// Use method to write the output text file
-				FileCreatorMethod(invoiceWritingFileLocation, stringOrderNumber, customerNotFoundMessage, error);
-				// Display error message on console
-				System.out.println("\n" + customerNotFoundMessage);
-			}
-
-			// If there is no drivers available to complete the load - Display on console
-			// and invoice an error message
-			else if (availableDriver == false) {
-				// Add to the file name that there was a driver error to improve visibility
-				String error = "-driver-error";
-				// Use method to write the output text file
-				FileCreatorMethod(invoiceWritingFileLocation, stringOrderNumber, driverErrorOutputMessage, error);
-				// Display error message on console
-				String fileCreatedMessage = ("No driver available for order number "
-						+ orderNumber + " - Error file created.");
-				System.out.println("\n" + fileCreatedMessage);
-			}
-
-			// If all the loading is successful - create a CORRECT INVOICE
-			else {
-				// Declare no error (blank) for file name modifying
-				String noError = "";
-				// Use method to write the output text file
-				String fileCreatedMessage = FileCreatorMethod(invoiceWritingFileLocation, stringOrderNumber,
-						outputMessage, noError);
-				// Display success/ unsuccessful message on console
-				System.out.println("\n" + fileCreatedMessage);
-				System.out.println("Driver " + driverName + " is allocated for this load.");
-			}
-
-			// If a driver is allocated to a load (1 = Yes)
-			if (availableDriver == true) {
-				// Update the drivers array after a load is allocated to be able to allocate the
-				// next load accurately.
-				drivers[driverObjectPosition].deliveries = (drivers[driverObjectPosition].deliveries + 1);
-			}
-
 		}
-		//Return the drivers array that is updated according to invoice allocation
+
+		// Find the customer whose order it is by order number
+		int customerObjectPosition = 0;
+		// If customer is found - proceed with invoice, if customer is not found, give
+		// error invoice
+		boolean availableCustomer = false;
+		for (int i = 0; i < customers.length; i++) {
+			if (customers[i].orderNumber == orderNumber) {
+				customerObjectPosition = i;
+				availableCustomer = true;
+			}
+		}
+
+		// Allocate a Driver for the Order
+		// Start with Object position 0
+		int driverObjectPosition = 0;
+		// Find the driver with the least amount of deliveries in the city
+		// Start with a high unreachable number and work down
+		int lowestDeliveries = 100000;
+		// Change to True if a driver is available
+		boolean availableDriver = false;
+
+		// For loop to find out if driver is in the region and which has the lowest amount of loads
+		for (int i = 0; i < drivers.length; i++) {
+			if ((drivers[i].cityDriver.equals(restaurants[restaurantObjectPosition].cityRestaurant))
+					&& (drivers[i].deliveries < lowestDeliveries)) {
+				// Update driver with least loads if another driver has less loads in the array at the position
+				driverObjectPosition = i;
+				// Update the driver if the delivery amount is lower than previous
+				lowestDeliveries = drivers[i].deliveries;
+				// If a driver for the region is found,change to 1 for yes driver is available
+				availableDriver = true;
+			}
+		}
+
+		// Declare all the input variables to form the output invoice message Driver attributes
+		String driverName = drivers[driverObjectPosition].driverName;
+		// Customer attributes
+		String customerName = customers[customerObjectPosition].customerName;
+		String contactNumberCustomer = customers[customerObjectPosition].contactNumber;
+		String streetAddressOfCustomer = customers[customerObjectPosition].streetAddressOfCustomer;
+		String suburbAddressOfCustomer = customers[customerObjectPosition].suburbAddressOfCustomer;
+		String cityCustomer = customers[customerObjectPosition].cityCustomer;
+		String emailCustomer = customers[customerObjectPosition].emailCustomer;
+		// Restaurant attributes
+		String restaurantName = restaurants[restaurantObjectPosition].restaurantName;
+		String cityRestaurant = restaurants[restaurantObjectPosition].cityRestaurant;
+		String contactNumberRestaurant = restaurants[restaurantObjectPosition].contactNumber;
+		String totalPrice = restaurants[restaurantObjectPosition].totalPrice;
+		String specialInstruction = restaurants[restaurantObjectPosition].specialInstruction;
+		String item1 = restaurants[restaurantObjectPosition].item1;
+		String item2 = restaurants[restaurantObjectPosition].item2;
+
+		// Output text for successful invoice - Use method to compile message
+		String outputMessage = InvoiceDetail(orderNumber, driverName, customerName, contactNumberCustomer,
+				streetAddressOfCustomer, suburbAddressOfCustomer, cityCustomer, emailCustomer, restaurantName,
+				cityRestaurant, contactNumberRestaurant, totalPrice, specialInstruction, item1, item2);
+
+		// Output text for invoice if there is no driver available
+		String driverErrorOutputMessage = "Sorry! \r\nOur drivers are too far away from you to be able to deliver to your location.";
+
+		// Convert order number to String for in order to use the Method.
+		String stringOrderNumber = orderNumber + "";
+		// Give Message result:
+		// If there is an error finding the order number in the client array - give error message in console and invoice text
+		if (availableCustomer == false) {
+			String customerNotFoundMessage = "Customer matching order number " + orderNumber
+					+ " could not be found + Error file created.";
+			// Add to the file name that there was a driver error to improve visibility
+			String error = "-customer-loading-error";
+			// Use method to write the output text file
+			FileCreatorMethod(invoiceWritingFileLocation, stringOrderNumber, customerNotFoundMessage, error);
+			// Display error message on console
+			System.out.println("\n" + customerNotFoundMessage);
+		}
+
+		// If there is no drivers available to complete the load - Display on console and invoice an error message
+		else if (availableDriver == false) {
+			// Add to the file name that there was a driver error to improve visibility
+			String error = "-driver-error";
+			// Use method to write the output text file
+			FileCreatorMethod(invoiceWritingFileLocation, stringOrderNumber, driverErrorOutputMessage, error);
+			// Display error message on console
+			String fileCreatedMessage = ("No driver available for order number " + orderNumber
+					+ " - Error file created.");
+			System.out.println("\n" + fileCreatedMessage);
+		}
+
+		// If all the loading is successful - create a CORRECT INVOICE
+		else {
+			// Declare no error (blank) for file name modifying
+			String noError = "";
+			// Use method to write the output text file
+			String fileCreatedMessage = FileCreatorMethod(invoiceWritingFileLocation, stringOrderNumber, outputMessage,
+					noError);
+			// Display success/ unsuccessful message on console
+			System.out.println("\n" + fileCreatedMessage);
+			System.out.println("Driver " + driverName + " is allocated for this load.");
+		}
+
+		// If a driver is allocated to a load (1 = Yes)
+		if (availableDriver == true) {
+			// Update the drivers array after a load is allocated to be able to allocate the next load accurately.
+			drivers[driverObjectPosition].deliveries = (drivers[driverObjectPosition].deliveries + 1);
+		}
+
+		// Return the drivers array that is updated according to invoice allocationq
 		return drivers;
 	}
 }
