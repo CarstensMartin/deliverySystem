@@ -68,10 +68,8 @@ public class Invoice {
 
 			// Create the text as output message for the Drivers
 			String outputMessageDrivers = outputMessageDrivers(drivers);
-			// File name of text file amendment
-			String newFileOutput = "NewAfterAllocation";
-			// Run the method to create a NEW file for Drivers
-			FileCreatorMethod(driverWritingFileLocation, "", outputMessageDrivers, newFileOutput);
+			// Overwrite the Drivers text file using the FileCreatorMethod method
+			FileCreatorMethod(driverWritingFileLocation, "", outputMessageDrivers, "");
 
 			// Ask the user if they want to add another order- (suggest No - 0), if Yes, continue loop
 			addNewOrder = wantToAddNewOrder(0);

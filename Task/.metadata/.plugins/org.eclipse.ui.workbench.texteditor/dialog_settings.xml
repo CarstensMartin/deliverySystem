@@ -6,8 +6,9 @@
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
-		<item key="selection" value="restaurantObjectPosition"/>
+		<item key="selection" value="driverWritingFileLocation"/>
 		<list key="findhistory">
+			<item value="driverWritingFileLocation"/>
 			<item value="restaurantIndexOfOrder"/>
 			<item value="numberOfOrder"/>
 			<item value="invoiceCreator"/>
